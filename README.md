@@ -5,7 +5,7 @@ Code Development Roadmap
 
 | Sensor | Initial Sensor Code Developed | Code Added to Workflow | Relevant Function |
 |-----:|---------------|-----:|---------------|
-| IR Sensor | [x] | [] | checkIRBreak() |
+| IR Sensor | :heavy_check_mark: | [] | checkIRBreak() |
 | Servo Motor (Ball Drop) | [] | [] | runMotor() |
 | PMDC Motor | [] | [] | runMotor() |
 
