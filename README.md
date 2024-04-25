@@ -4,6 +4,7 @@ EE106 Final Project to design the mechanical, electrical, and software component
 Code Development Roadmap
 
 | Sensor | Initial Sensor Code Developed | Code Added to Workflow | Relevant Function |
+|-----:|---------------|-----:|---------------|
 | IR Sensor | [x] | [] | checkIRBreak() |
 | Servo Motor (Ball Drop) | [] | [] | runMotor() |
 | PMDC Motor | [] | [] | runMotor() |
