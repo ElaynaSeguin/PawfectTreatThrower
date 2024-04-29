@@ -1,0 +1,18 @@
+from machine import Pin
+import time
+
+# Define the GPIO pin (GP9) as an input
+gp9_pin = gp9_pin = Pin(5, Pin.IN, Pin.PULL_UP)
+
+while True:
+    # Read the state of GP9
+    state = gp9_pin.value()
+
+    # Print the state (1 for high, 0 for low)
+    if state == 1:
+        print("GP9 is HIGH")
+    else:
+        print("GP9 is LOW")
+
+    # Add a delay between readings
+    time.sleep(0.1)
