@@ -1,0 +1,38 @@
+#ultrasonic tester code 2
+
+from machine import Pin, time_pulse_us
+import utime
+
+# Define pin assignments
+trigger_pin = Pin(15, Pin.OUT)
+echo_pin = Pin(14, Pin.IN)
+
+# Function to perform distance measurement
+def measure_distance():
+    # Generate a 10us pulse on the trigger pin to start the measurement
+    trigger_pin.value(0)  # Ensure trigger is low
+    utime.sleep_us(2)     # Wait for 2us
+    trigger_pin.value(1)  # Set trigger pin high
+    utime.sleep_us(10)    # Keep trigger pin high for 10us
+    trigger_pin.value(0)  # Set trigger pin low
+
+    # Measure the duration of the echo pulse
+    duration = time_pulse_us(echo_pin, 1, 30000)  # Wait for a maximum of 30ms (corresponds to ~5m range)
+    
+    # Calculate distance in centimeters
+    if duration > 0:
+        # Speed of sound is approximately 340 m/s or 0.034 cm/us
+        distance_cm = duration * 0.034 / 2  # Divide by 2 because of round trip
+        return distance_cm
+    else:
+        # No echo received within the timeout
+        return None
+
+# Main loop to continuously measure and print distance
+while True:
+    distance = measure_distance()
+    if distance is not None:
+        print("Distance: {:.2f} cm".format(distance))
+    else:
+        print("Timeout occurred, distance measurement failed.")
+    utime.sleep(1)  # Delay between measurements
