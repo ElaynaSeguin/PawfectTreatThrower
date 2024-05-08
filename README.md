@@ -5,9 +5,9 @@ EE106 Final Project to design the mechanical, electrical, and software component
 
 | Sensor | Initial Sensor Code Developed | Code Added to Workflow | Relevant Function |
 |-----:|---------------|-----:|---------------|
-| IR Sensor | :heavy_check_mark: | [] | checkIRBreak() |
-| Servo Motor (Ball Drop) | [] | [] | runMotor() |
-| 2x PMDC Motor | [] | [] | runMotor() |
+| IR Sensor | :heavy_check_mark: | :heavy_check_mark: | checkIRBreak() |
+| Servo Motor (Ball Drop) | :heavy_check_mark: | :heavy_check_mark: | runMotor() |
+| 2x PMDC Motor | :heavy_check_mark: | :heavy_check_mark: | runMotor() | limitations on motor due to L298 driver board selected.
 | Stepper Motor | :heavy_check_mark: | [] | dispenseTreat() |
 | Ultrasonic Sensor | :heavy_check_mark: | [] | checkBlocked() |
 
