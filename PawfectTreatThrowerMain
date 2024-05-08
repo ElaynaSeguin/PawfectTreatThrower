@@ -1,0 +1,82 @@
+from machine import Pin, PWM
+import time
+#from checkIRBreak import checkIRBreak
+
+def setServoCycle (position):
+
+    pwm.duty_u16(position)
+
+    time.sleep(0.01)
+    
+def checkIRBreak(irPin):
+    #declared prior to main function execution
+    state = irPin.value()
+    if state == 0:
+        print("Ball in place.\n")
+        return True
+    else:
+        print("Ball is not in place. Looking for ball...")
+    
+    return False
+
+def runMotor():
+    #turn motors on
+    #servo motor rotates x degrees
+    
+    EN_B.high()
+    In3.high()
+    In4.low()
+    print("running motor")
+    time.sleep(5)
+    for pos in range(1000,5000,50):
+        #print("rotating...")
+
+        setServoCycle(pos)
+
+    for pos in range(5000,1000,-50):
+
+        setServoCycle(pos)
+    #ball drops
+    #motors continue to run
+    time.sleep(1)
+    
+    print("turn off")
+    EN_B.low()
+    In3.low()
+    In4.low()
+    #motor turn off
+    
+def checkBlocked():
+    #run us code, if blocked, turn motors off
+    #cannot run concurrently without multithreading
+    return False
+    
+irPin = Pin(7, Pin.IN, Pin.PULL_UP)
+pwm = PWM(Pin(22))
+pwm.freq(50)
+
+#motor 1
+In1=Pin(13,Pin.OUT) 
+In2=Pin(14,Pin.OUT)  
+EN_A=Pin(15,Pin.OUT)
+
+
+#motor 2
+In3=Pin(10,Pin.OUT) 
+In4=Pin(11,Pin.OUT)  
+EN_B=Pin(12,Pin.OUT)
+
+#usSensorEcho = Pin(6,Pin.IN)
+#usSensorTrig = Pin(7,Pin.IN)
+
+
+
+while True:
+    #checkIRBreak(irPin)
+    if checkIRBreak(irPin):
+        #if not checkBlocked(usSensor):
+        runMotor()
+    else:
+        print("not blocked")
+    time.sleep(1)
+    
