@@ -1,0 +1,162 @@
+from machine import Pin, PWM
+import time
+#from checkIRBreak import checkIRBreak
+
+# Define function to perform a single step of the stepper motor
+def step_motor(sequence, step_number):
+    for pin, value in zip([coil_A_1_pin, coil_A_2_pin, coil_B_1_pin, coil_B_2_pin], sequence[step_number]):
+        pin.value(value)
+
+def dispenseTreat():
+    try:
+    # Perform 512 steps for one full rotation (8 steps per sequence * 64 sequences)
+    for i in range(4096):
+        step_motor(step_sequence, i % 8)
+        time.sleep_ms(10)  # Adjust delay for motor speed (increase for slower rotation)
+
+    except KeyboardInterrupt:
+        pass
+    finally:
+        # Turn off all motor coils to stop motor movement
+        for pin in [coil_A_1_pin, coil_A_2_pin, coil_B_1_pin, coil_B_2_pin]:
+            pin.value(0)
+
+
+# Function to perform distance measurement
+def measure_distance():
+    # Generate a 10us pulse on the trigger pin to start the measurement
+    trigger_pin.value(0)  # Ensure trigger is low
+    utime.sleep_us(2)     # Wait for 2us
+    trigger_pin.value(1)  # Set trigger pin high
+    utime.sleep_us(10)    # Keep trigger pin high for 10us
+    trigger_pin.value(0)  # Set trigger pin low
+
+    # Measure the duration of the echo pulse
+    duration = time_pulse_us(echo_pin, 1, 30000)  # Wait for a maximum of 30ms (corresponds to ~5m range)
+    
+    # Calculate distance in centimeters
+    if duration > 0:
+        # Speed of sound is approximately 340 m/s or 0.034 cm/us
+        distance_cm = duration * 0.034 / 2  # Divide by 2 because of round trip
+        return distance_cm
+    else:
+        # No echo received within the timeout
+        return None
+
+def setServoCycle (position):
+
+    pwm.duty_u16(position)
+
+    time.sleep(0.01)
+    
+def checkIRBreak(irPin):
+    #declared prior to main function execution
+    state = irPin.value()
+    if state == 0:
+        print("Ball in place.\n")
+        return True
+    else:
+        print("Ball is not in place. Looking for ball...")
+    
+    return False
+
+def runMotor():
+    #turn motors on
+    #servo motor rotates x degrees
+    
+    #run motor only currently uses motor two due to limitations in buck converter on driver board
+    EN_B.high()
+    In3.high()
+    In4.low()
+    print("running motor")
+    time.sleep(5)
+    for pos in range(1000,5000,50):
+        #print("rotating...")
+
+        setServoCycle(pos)
+
+    for pos in range(5000,1000,-50):
+
+        setServoCycle(pos)
+    #ball drops
+    #motors continue to run
+    time.sleep(1)
+    
+    print("turn off")
+    EN_B.low()
+    In3.low()
+    In4.low()
+    #motor turn off
+    
+def checkBlocked():
+    #run us code, if blocked, turn motors off
+    #cannot run concurrently without multithreading
+    result = measure_distance()
+    if result < 100 or None:
+        return False
+    
+    else:
+        print("Device blocked. Waiting...")
+        time.sleep(5)
+        return True
+        
+
+#us sensor set up
+#verify correct pins
+trigger_pin = Pin(8, Pin.OUT)
+echo_pin = Pin(9, Pin.IN)
+
+irPin = Pin(7, Pin.IN, Pin.PULL_UP)
+pwm = PWM(Pin(22))
+pwm.freq(50)
+
+#motor 1
+In1=Pin(13,Pin.OUT) 
+In2=Pin(14,Pin.OUT)  
+EN_A=Pin(15,Pin.OUT)
+
+
+#motor 2
+In3=Pin(10,Pin.OUT) 
+In4=Pin(11,Pin.OUT)  
+EN_B=Pin(12,Pin.OUT)
+
+#usSensorEcho = Pin(6,Pin.IN)
+#usSensorTrig = Pin(7,Pin.IN)
+
+#stepper motor/treat dispenser initialization
+coil_A_1_pin = Pin(18, Pin.OUT)  # IN1
+coil_A_2_pin = Pin(19, Pin.OUT)  # IN2
+coil_B_1_pin = Pin(20, Pin.OUT)  # IN3
+coil_B_2_pin = Pin(21, Pin.OUT)  # IN4
+
+# Define stepper motor sequence (8-step sequence for 28BYJ-48)
+step_sequence = [
+    [1, 0, 0, 1],  # Step 1
+    [1, 0, 0, 0],  # Step 2
+    [1, 1, 0, 0],  # Step 3
+    [0, 1, 0, 0],  # Step 4
+    [0, 1, 1, 0],  # Step 5
+    [0, 0, 1, 0],  # Step 6
+    [0, 0, 1, 1],  # Step 7
+    [0, 0, 0, 1]   # Step 8
+]
+
+
+
+while True:
+    #checkIRBreak(irPin)
+    if checkIRBreak(irPin):
+        print("Ball in place.")
+        time.sleep(.5)
+        print("Dispensing treat...")
+        dispenseTreat()
+        print("sleeping...")
+        time.sleep(5)
+        if not checkBlocked():
+            print("motor starting...")
+            runMotor()
+    else:
+        print("No break in IR sensor")
+    time.sleep(1)
+    
